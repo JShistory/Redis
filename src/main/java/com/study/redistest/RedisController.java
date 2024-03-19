@@ -1,7 +1,9 @@
 package com.study.redistest;
 
+import io.lettuce.core.metrics.MetricCollector;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.geo.Distance;
 import org.springframework.data.geo.Point;
 import org.springframework.data.redis.core.GeoOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.awt.*;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -41,6 +44,7 @@ public class RedisController {
         vop.set("yellow", "banana");
         vop.set("red", "apple");
         vop.set("green", "watermelon");
+        vop.set("test1123", "aa",10L, TimeUnit.SECONDS );
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -55,5 +59,13 @@ public class RedisController {
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+
+    @GetMapping("/redisGeoTest/{key}")
+    public ResponseEntity<?> getGeoRedisKey(@PathVariable String key) {
+        GeoOperations<String, String> geo = redisTemplate.opsForGeo();
+        Distance distance = geo.distance(key, "hong-dae", "gang-nam");
+        return new ResponseEntity<>(distance.getNormalizedValue(), HttpStatus.OK);
+    }
+
 
 }
